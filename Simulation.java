@@ -13,7 +13,7 @@ public class Simulation {
     Graph<Person, Connection> g;
     int currentTimestep = 0;
     Person[] people;
-    Random random = new Random();
+    Random random;
 
     public static void main(String[] args) {
         Simulation simulation = new Simulation();
@@ -21,6 +21,7 @@ public class Simulation {
     }
 
     private void run() {
+        this.random = new Random();
         this.initGraph();
     }
 
