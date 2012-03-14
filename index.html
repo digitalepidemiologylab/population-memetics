@@ -94,6 +94,75 @@
                   <br/><br/>I will be using a population memetics approach where by meme I mean any culture entity that
                   can be stably transmitted from person to person.
               </p>
+              <h3>Methods</h3>
+              <p>
+                  The basis of the model is a network where individuals are represented by nodes and connected through
+                  ties along which memes can be transmitted. Any network structure can be modeled, but I will focus
+                  here on a random network as a canonical network null model, as well as a small world network as a
+                  canonical social network null model.
+                  <br/><br>
+                  It is worth revisiting the implicit and explicit assumptions of previous models of complex contagion.
+                  Previous models of complex contagion - from now on referred to as the <i>standard model</i> - assume
+                  that an individual with resident behavior M0 will maintain behavior M0 until exposed to the new,
+                  spreading behavior M1, at least T times (with the requirement that T > 1 as per the definition of
+                  complex contagion). Further, transmission can only occur from phenotype M1, but not from phenotype M0:
+                  when exposed, transmission occurs at rate β (equivalent to the transmission rate in infectious disease
+                  models) in the direction M1 to M0 only. The latter assumption is common to all epidemiological models
+                  in that an infectious unit can be transmitted from the infectious individual to susceptible
+                  individuals, and eventually turn susceptible individuals into infectious individuals, but the reverse
+                  direction is never possible. (Infectious individuals may go back to a susceptible state by recovery,
+                  but the susceptible state is never transmissible: recovery occurs independently - and even in the
+                  absence - of other individuals.)
+                  <br/><br/>
+                  This standard model, based on epidemiological models, is able to capture a number of social contagion
+                  phenomena. I propose a population memetics model that can easily capture the standard model, but is
+                  more general and has its roots in both epidemiology and population genetics. In particular, I suggest
+                  to model individuals as defined by a set of memes - cultural units that are transmissible. The set of
+                  memes is called the memotype - in analogy to the genotype - and the expressed behavior is called
+                  phenotype. The model has three requirements:
+                  <br/><br/>
+                  <ol>
+                  <li>The memotype - phenotype map must be defined explicitly.</li>
+                  <li>Transmission rates - a measure of reproductive fitness - must be defined for all phenotypes
+                      (by requirement 1, they are then also defined per memotype).</li>
+                  <li>The rules of horizontal inheritance must be defined explicitly; that is, for each
+                      memotype exposed to another memotype by transmission, the resulting
+                      memotype (distribution) must be defined.</li>
+                  </ol>
+
+                  In order to develop the general population memetics model, I will start with the well-studied standard
+                model of a binary trait (the behavior can be either M0 or M1), and the simplest form of complex
+                contagion (T=2). We begin by defining the resident memotype to be 00, the singularly exposed memotype
+                to be 01, and the doubly exposed memotype to be 11. The first requirement of the model is to make the
+                memotype - phenotype map explicit, which in this case is as follows:
+                  <br/><br/>
+                  Memotype 00 <i class="icon-arrow-right"></i> Phenotype M0<br/>
+                  Memotype 01 <i class="icon-arrow-right"></i> Phenotype M0<br/>
+                  Memotype 11 <i class="icon-arrow-right"></i> Phenotype M1<br/>
+                  <br/><br/>
+                  This model thus makes the assumption that both non-exposed (memotype 00) and singularly exposed
+                (memotype 01) individuals have the same behavior (phenotype M0).
+                  <br/><br/>
+                  Next, the transmission rates need to be defined explicitly. Following the standard model of complex contagion with T = 0, the transmission rates are as follows:
+                  <br/><br/>
+                  Transmission rate for phenotype M0 : &beta;   <br/>
+                  Transmission rate for phenotype M0 : 0
+                  <br/><br/>
+                  Finally, the rules of horizontal inheritance must be defined explicitly. In the case of the standard model, the rules are as follows:
+
+                          Exposed memotype
+                          00	01	11
+                  Transmitting memotype	00	00*	01*	11*
+                  01	00*	01*	11*
+                  11	01	11	11
+                  * in principle these values are irrelevant in the standard model as the transmission rate from memotypes 00 an 01 (i.e. phenotype M0) is always 0.
+
+
+                  These three definitions (the memotype - phenotype map, the transmission rates, and the rules of horizontal transmission) are sufficient to define a population memetics version of the standard model.
+                  The definition of three memotypes as sets of two memes of two different types (0 and 1) needs justification. As an alternative, one could have defined the three memotypes to be sets of a single meme of three different types (0, 1 and 2), and still be able to fulfill all the requirements set above. To see why this latter approach would be problematic, it is worth revisiting what a meme is meant to be. A meme is a cultural unit that can be stably transmitted from person to person (barring mutation which I will ignore here). This definition requires that when a meme is transmitted to a person, the resident meme will either be replaced, or complemented, but no new meme can be created. If we were to define memotypes to be sets of a single meme of three different types (0, 1 and 2), where only meme 2 can be transmitted, this assumption would be violated. Consider the case of meme 2 being transmitted to a person with meme 0 (i.e not previously exposed). Since the person is now exposed once (meme 1), the transmission of meme 2 to meme 0 would have resulted in a new meme 1, which is not possible. The original definition of three memotypes as sets of two memes of two different types (0 and 1) does not suffer from this problem. Consider again the case where memotype 00 is exposed to memotype 11. Meme 1 is transmitted from memotype 11 to a person with memotype 00 (i.e. two memes 0). The resulting memotype 01 is simply a combination of memes 0 and 1, no new memes have been created. What has been created instead is a new memotype.
+
+              </p>
+
 
               <!--<p>Clone the project with <a href="http://git-scm.com">Git</a>
       by running:
