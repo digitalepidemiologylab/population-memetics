@@ -8,6 +8,9 @@ public class SimulationSettings {
     private int numberOfPeople = 2000;
     private int k = 10;
     private double rewiringProbability = 0.02;
+    private double transmissionRate00   = 0.1;
+    private double transmissionRate01   = 0.1;
+    private double transmissionRate11   = 0.1;
 
 
     public static SimulationSettings getInstance() {
@@ -41,6 +44,27 @@ public class SimulationSettings {
         this.rewiringProbability = rewiringProbability;
     }
 
+    public double getTransmissionRate00() {
+        return transmissionRate00;
+    }
 
+    public void setTransmissionRate00(double transmissionRate00) {
+        this.transmissionRate00 = transmissionRate00;
+    }
 
+    public double getTransmissionRate01() {
+        return transmissionRate01;
+    }
+
+    public void setTransmissionRate01(double transmissionRate01) {
+        this.transmissionRate01 = transmissionRate01;
+    }
+
+    public double getTransmissionRate11() {
+        return transmissionRate11;
+    }
+
+    public void setTransmissionRate11(double transmissionRate11) {
+        this.transmissionRate11 = transmissionRate11;
+    }
 }

@@ -24,7 +24,12 @@ public class Simulation {
     private void run() {
         this.random = new Random();
         this.initGraph();
+        this.setRandomPersonTo11();
         this.runTimesteps();
+    }
+
+    private void setRandomPersonTo11() {
+        this.people[this.random.nextInt(SimulationSettings.getInstance().getNumberOfPeople())].setMemotype("11");
     }
 
     private void runTimesteps() {
@@ -32,16 +37,39 @@ public class Simulation {
             if (this.currentTimestep==0) this.socialContagion = true;
             if (this.socialContagion) {
                 this.socialContagion();
+                this.gatherData();
                 this.currentTimestep++;
             }
             else break;
         }
     }
 
-    private void socialContagion() {
+    private void gatherData() {
+        System.out.println(this.currentTimestep + "\t" + this.getFrequencyOfMemotype("00") + "\t" + this.getFrequencyOfMemotype("01") + "\t" + this.getFrequencyOfMemotype("11"));
+    }
+
+    private double getFrequencyOfMemotype(String memotype) {
+        double counter  = 0.;
         for (Person person:this.g.getVertices()) {
+            if (person.getMemotype().equals(memotype)) counter++;
+        }
+        return counter / SimulationSettings.getInstance().getNumberOfPeople();
+    }
+
+    private void socialContagion() {
+        double transmissionRate00 = SimulationSettings.getInstance().getTransmissionRate00();
+        double transmissionRate01 = SimulationSettings.getInstance().getTransmissionRate01();
+        double transmissionRate11 = SimulationSettings.getInstance().getTransmissionRate11();
+        for (Person person:this.g.getVertices()) {
+            // person is the exposed
             for (Person neighbour:this.g.getNeighbors(person)) {
-                person.addTempMemotype(this.getOffspringMemotype(person.getMemotype(), neighbour.getMemotype()));
+                // neighbour is the exposing
+                double r = random.nextDouble();
+                boolean transmissionOccurs = false;
+                if (neighbour.getMemotype().equals("00") && r < transmissionRate00) transmissionOccurs = true;
+                else if (neighbour.getMemotype().equals("01") && r < transmissionRate01) transmissionOccurs = true;
+                else if (neighbour.getMemotype().equals("11") && r < transmissionRate11) transmissionOccurs = true;
+                if (transmissionOccurs) person.addTempMemotype(this.getOffspringMemotype(person.getMemotype(), neighbour.getMemotype()));
             }
         }
         // assign new opinions according to temp value and reset
@@ -63,7 +91,7 @@ public class Simulation {
         else {
             if (memotype_exposed.equals("00")) return "01";
             else if (memotype_exposed.equals("01")) return "11";
-            else return "00";
+            else return "11";
         }
     }
 
