@@ -2,6 +2,7 @@ package com.salathe.populationmemetics;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Person {
 
@@ -38,5 +39,9 @@ public class Person {
 
     public void resetTempMemotypes() {
         this.tempMemotypes.clear();
+    }
+
+    public void shuffleTempMemotypes() {
+        Collections.shuffle(this.tempMemotypes);
     }
 }
