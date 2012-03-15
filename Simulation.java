@@ -14,6 +14,7 @@ public class Simulation {
     int currentTimestep = 0;
     Person[] people;
     Random random;
+    boolean socialContagion = false;
 
     public static void main(String[] args) {
         Simulation simulation = new Simulation();
@@ -23,6 +24,47 @@ public class Simulation {
     private void run() {
         this.random = new Random();
         this.initGraph();
+        this.runTimesteps();
+    }
+
+    private void runTimesteps() {
+        while(true) {
+            if (this.currentTimestep==0) this.socialContagion = true;
+            if (this.socialContagion) {
+                this.socialContagion();
+                this.currentTimestep++;
+            }
+            else break;
+        }
+    }
+
+    private void socialContagion() {
+        for (Person person:this.g.getVertices()) {
+            for (Person neighbour:this.g.getNeighbors(person)) {
+                person.addTempMemotype(this.getOffspringMemotype(person.getMemotype(), neighbour.getMemotype()));
+            }
+        }
+        // assign new opinions according to temp value and reset
+        for (Person person:this.g.getVertices()) {
+            if (person.getTempMemotypes().size() > 0) {
+                person.setMemotype(person.getTempMemotypes().get(this.random.nextInt(person.getTempMemotypes().size())));
+                person.resetTempMemotypes();
+            }
+        }
+    }
+
+    private String getOffspringMemotype(String memotype_exposed, String memotype_exposing) {
+        if (memotype_exposing.equals("00")) {
+            return memotype_exposed;
+        }
+        else if (memotype_exposing.equals("01")) {
+            return memotype_exposed;
+        }
+        else {
+            if (memotype_exposed.equals("00")) return "01";
+            else if (memotype_exposed.equals("01")) return "11";
+            else return "00";
+        }
     }
 
     private void initGraph() {
@@ -34,7 +76,7 @@ public class Simulation {
             this.g = new SparseGraph<Person, Connection>();
             for (int i = 0; i < numberOfPeople; i++) {
                 // initialize all as having a positive vaccination opinion
-                Person person = new Person(Integer.toString(i));
+                Person person = new Person(Integer.toString(i),"00");
                 this.people[i] = person;
                 this.g.addVertex(person);
             }
