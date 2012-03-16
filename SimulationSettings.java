@@ -5,8 +5,8 @@ public class SimulationSettings {
     private static SimulationSettings ourInstance = new SimulationSettings();
 
 
-    private int numberOfPeople = 2000;
-    private int k = 8;
+    private int numberOfPeople = 200*200;
+    private int k = 8; // only relevant with smallgraph
     private double rewiringProbability = 0.01;
 
     // transmission rates
@@ -24,6 +24,8 @@ public class SimulationSettings {
     private double viability00          = 1.0;
     private double viability01          = 0.;
     private double viability11          = 1.0;
+
+    private int slidingWindow           = 10;
 
 
     public static SimulationSettings getInstance() {
@@ -119,5 +121,9 @@ public class SimulationSettings {
 
     public void setProbability_exposing_to_exposed(double[][] probability_exposing_to_exposed) {
         this.probability_exposing_to_exposed = probability_exposing_to_exposed;
+    }
+
+    public int getSlidingWindow() {
+        return this.slidingWindow;
     }
 }
