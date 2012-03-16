@@ -23,9 +23,14 @@ public class Simulation {
 
     private void run() {
         this.random = new Random();
+        this.init();
+        this.runTimesteps();
+    }
+
+    private void init() {
+        InheritanceMatrix.getInstance().generateMatrix();
         this.initGraph();
         this.setTwoRandomNeighboursTo11();
-        this.runTimesteps();
     }
 
     private void setTwoRandomNeighboursTo11() {
@@ -77,38 +82,37 @@ public class Simulation {
                 if (transmissionOccurs) person.addTempMemotype(neighbour.getMemotype());
             }
         }
-        // assign new opinions according to temp value and reset
+        // assign new memotypes according to exposing memotype
+        double viability00 = SimulationSettings.getInstance().getViability00();
+        double viability01 = SimulationSettings.getInstance().getViability01();
+        double viability11 = SimulationSettings.getInstance().getViability11();
         for (Person person:this.g.getVertices()) {
             if (person.getTempMemotypes().size() == 0) continue;
             else {
-//                System.out.println("# temp memotypes = " +  person.getTempMemotypes().size());
                 // each exposing memotype gets to affect the exposed memotype. Because the order can matter, we simply shuffle.
                 person.shuffleTempMemotypes();
                 String currentMemotype = person.getMemotype();
                 for (String exposing_memoype:person.getTempMemotypes()) {
-//                    if (currentMemotype.equals("11")) System.out.println("11");
-                    currentMemotype = this.getOffspringMemotype(currentMemotype,exposing_memoype);
+                    currentMemotype = this.getOffspringMemotype(exposing_memoype,currentMemotype);
                 }
                 // now viability check
                 boolean isViable = false;
-                if (currentMemotype.equals("00") && this.random.nextDouble() < SimulationSettings.getInstance().getViability00()) isViable = true;
-                if (currentMemotype.equals("01") && this.random.nextDouble() < SimulationSettings.getInstance().getViability01()) isViable = true;
-                if (currentMemotype.equals("11") && this.random.nextDouble() < SimulationSettings.getInstance().getViability11()) isViable = true;
+                if (currentMemotype.equals("00") && this.random.nextDouble() < viability00) isViable = true;
+                if (currentMemotype.equals("01") && this.random.nextDouble() < viability01) isViable = true;
+                if (currentMemotype.equals("11") && this.random.nextDouble() < viability11) isViable = true;
                 if (isViable) person.setMemotype(currentMemotype);
+                // finally reset
                 person.resetTempMemotypes();
             }
         }
     }
 
-    private String getOffspringMemotype(String memotype_exposed, String memotype_exposing) {
-        String offspringMemotype = memotype_exposed;
-        // for the stanard model the exposing should always be 00, so we only need to take care of 11
-        if (memotype_exposing.equals("11")) {
-            if (memotype_exposed.equals("00")) offspringMemotype = "01";
-            else if (memotype_exposed.equals("01")) offspringMemotype = "11";
-            else offspringMemotype = "11";
-        }
-        return offspringMemotype;
+    private String getOffspringMemotype(String memotype_exposing, String memotype_exposed) {
+        String[] memoypes = InheritanceMatrix.getInstance().getInheritanceMemotypes(memotype_exposing, memotype_exposed);
+        double[] probabilities = InheritanceMatrix.getInstance().getInheritanceProbabilities(memotype_exposing, memotype_exposed);
+        // pick a random memoType, but according to probabilities. TODO
+        if (probabilities.length == 1) return memoypes[0];
+        return null;
     }
 
     private void initGraph() {

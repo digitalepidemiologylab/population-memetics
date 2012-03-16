@@ -9,10 +9,16 @@ public class SimulationSettings {
     private int k = 8;
     private double rewiringProbability = 0.01;
 
-    // fertility
+    // transmission rates
     private double transmissionRate00   = 0.;
     private double transmissionRate01   = 0.;
     private double transmissionRate11   = 1.0;
+
+    // horizontal inheritance rules
+    // both arrays need to have nine elements, each of which are arrays also
+    // each subarray defines a possible result, with the corresponding probability
+    private String[][] memotype_exposing_to_exposed = {{"00"},{"01"},{"11"},{"00"},{"01"},{"11"},{"01"},{"11"},{"11"}};
+    private double[][] probability_exposing_to_exposed = {{1.},{1.},{1.},{1.},{1.},{1.},{1.},{1.},{1.}};
 
     // viability
     private double viability00          = 1.0;
@@ -97,5 +103,21 @@ public class SimulationSettings {
 
     public void setViability11(double viability11) {
         this.viability11 = viability11;
+    }
+
+    public String[][] getMemotype_exposing_to_exposed() {
+        return memotype_exposing_to_exposed;
+    }
+
+    public void setMemotype_exposing_to_exposed(String[][] memotype_exposing_to_exposed) {
+        this.memotype_exposing_to_exposed = memotype_exposing_to_exposed;
+    }
+
+    public double[][] getProbability_exposing_to_exposed() {
+        return probability_exposing_to_exposed;
+    }
+
+    public void setProbability_exposing_to_exposed(double[][] probability_exposing_to_exposed) {
+        this.probability_exposing_to_exposed = probability_exposing_to_exposed;
     }
 }
