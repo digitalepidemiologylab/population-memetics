@@ -4,7 +4,6 @@ package com.salathe.populationmemetics;
 import edu.uci.ics.jung.algorithms.cluster.WeakComponentClusterer;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseGraph;
-
 import java.util.Random;
 import java.util.Set;
 
@@ -15,13 +14,18 @@ public class Simulation {
     Person[] people;
     Random random;
     boolean socialContagion = false;
+    boolean hasSuccessfullyFinished = false;
+
+    double[] fractionMemotype00;
+    double[] fractionMemotype01;
+    double[] fractionMemotype11;
 
     public static void main(String[] args) {
         Simulation simulation = new Simulation();
         simulation.run();
     }
 
-    private void run() {
+    public void run() {
         this.random = new Random();
         this.init();
         this.runTimesteps();
@@ -29,16 +33,18 @@ public class Simulation {
 
     private void init() {
         InheritanceMatrix.getInstance().generateMatrix();
-        this.initGraph();
-        this.setTwoRandomNeighboursTo11();
+        this.fractionMemotype00 = new double[SimulationSettings.getInstance().getSlidingWindow()];
+        this.fractionMemotype01 = new double[SimulationSettings.getInstance().getSlidingWindow()];
+        this.fractionMemotype11 = new double[SimulationSettings.getInstance().getSlidingWindow()];
+        this.initSmallWorldLatticeGraph();
+        this.setRandomNeighboursTo11();
     }
 
-    private void setTwoRandomNeighboursTo11() {
+    private void setRandomNeighboursTo11() {
         Person randomPerson = this.people[this.random.nextInt(SimulationSettings.getInstance().getNumberOfPeople())];
         randomPerson.setMemotype("11");
         for (Person neighbour:this.g.getNeighbors(randomPerson)) {
             neighbour.setMemotype("11");
-            break;
         }
     }
 
@@ -48,14 +54,30 @@ public class Simulation {
             if (this.socialContagion) {
                 this.socialContagion();
                 this.gatherData();
+                this.checkWhetherToStop();
                 this.currentTimestep++;
             }
             else break;
         }
     }
 
+    private void checkWhetherToStop() {
+        // TODO make this generic
+        // saturation, stop + success:
+        if (this.getFrequencyOfMemotype("11") >= 0.99) {
+            this.socialContagion = false;
+            this.hasSuccessfullyFinished = true;
+        }
+        // no change, stop + no success:
+        if ( this.fractionMemotype11[0] ==  this.fractionMemotype11[SimulationSettings.getInstance().getSlidingWindow()-1]) this.socialContagion = false;
+    }
+
     private void gatherData() {
-        System.out.println(this.currentTimestep + "\t" + this.getFrequencyOfMemotype("00") + "\t" + this.getFrequencyOfMemotype("01") + "\t" + this.getFrequencyOfMemotype("11"));
+        int slidingWindow = SimulationSettings.getInstance().getSlidingWindow();
+        this.fractionMemotype00[this.currentTimestep % slidingWindow] = this.getFrequencyOfMemotype("00");
+        this.fractionMemotype01[this.currentTimestep % slidingWindow] = this.getFrequencyOfMemotype("01");
+        this.fractionMemotype11[this.currentTimestep % slidingWindow] = this.getFrequencyOfMemotype("11");
+//        System.out.println(this.currentTimestep + "\t" + this.getFrequencyOfMemotype("00") + "\t" + this.getFrequencyOfMemotype("01") + "\t" + this.getFrequencyOfMemotype("11"));
     }
 
     private double getFrequencyOfMemotype(String memotype) {
@@ -115,7 +137,11 @@ public class Simulation {
         return null;
     }
 
-    private void initGraph() {
+    public boolean hasSuccessfullyFinished() {
+        return this.hasSuccessfullyFinished;
+    }
+
+    private void initSmallWorldRingGraph() {
         Set components;
         int numberOfPeople = SimulationSettings.getInstance().getNumberOfPeople();
         int k = SimulationSettings.getInstance().getK();
@@ -159,4 +185,61 @@ public class Simulation {
         while (components.size() > 1);
         // make sure everything is connected
     }
+
+    private void initSmallWorldLatticeGraph() {
+        Set components;
+        int numberOfPeople = SimulationSettings.getInstance().getNumberOfPeople();
+        int dimension = (int)Math.sqrt(numberOfPeople);
+        this.people = new Person[numberOfPeople];
+        do {
+            this.g = new SparseGraph<Person, Connection>();
+            for (int i = 0; i < numberOfPeople; i++) {
+                // initialize all as having a positive vaccination opinion
+                Person person = new Person(Integer.toString(i),"00");
+                this.people[i] = person;
+                this.g.addVertex(person);
+            }
+            // connect in ring
+            for (int i = 0; i < dimension; i++) {
+                for (int ii = 0; ii < dimension; ii++) {
+                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i-1,ii-1,dimension)]);
+                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i-1,ii,dimension)]);
+                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i-1,ii+1,dimension)]);
+                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i,ii-1,dimension)]);
+                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i,ii+1,dimension)]);
+                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i+1,ii-1,dimension)]);
+                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i+1,ii,dimension)]);
+                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i+1,ii+1,dimension)]);
+                }
+            }
+            // random rewiring
+            for (Connection edge:this.g.getEdges()) {
+                if (this.random.nextDouble() < SimulationSettings.getInstance().getRewiringProbability()) {
+                    // rewire this edge
+                    Person source = this.g.getEndpoints(edge).getFirst();
+                    Person newDestination;
+                    do {
+                        newDestination = this.people[this.random.nextInt(numberOfPeople)];
+                    }
+                    while (this.g.isNeighbor(source,newDestination) || source.equals(newDestination));
+                    this.g.removeEdge(edge);
+                    this.g.addEdge(new Connection(),source,newDestination);
+                }
+            }
+            WeakComponentClusterer wcc = new WeakComponentClusterer();
+            components = wcc.transform(this.g);
+        }
+        while (components.size() > 1);
+        // make sure everything is connected
+    }
+
+    private int getIndex(int i, int ii, int dimension) {
+        if (i < 0) i += dimension;
+        if (ii < 0) ii += dimension;
+        if (i >= dimension) i -= dimension;
+        if (ii >= dimension) ii -= dimension;
+        return i*dimension + ii;
+    }
+
+
 }
