@@ -255,6 +255,115 @@
 
 
               </p>
+              <h3>Results</h3>
+              <p>
+                  <h4>The standard model</h4>
+                  The first goal is to recreate previously reported results of the standard model.
+                  <br/><br/>
+                  Starting from a small world network ring (1D) or lattice (2D) network, occasional rewiring of random edges
+                  will initially lead to networks with small world topologies, and eventually - as random rewiring increases -
+                  to networks with random topologies. One of the key findings of the standard model is the following.
+                  The speed of cascades of complex social contagion that start from a small group of individuals with phenotype M1
+                  (one randomly chosen individual and all of its neighbours) depends on the topology of the network. In
+                  particular, cascades will become faster as the rewiring probability increases, but will eventuall slow
+                  down again after a certain threshold. Finally, once the network topology has been sufficiently randomized
+                  by rewiring, cascades that result in the large majority of individuals to adopt phenotype M1 will
+                  not occur at all.
+                  <br/><br/>
+                  Running simulations on a 2D lattice grid network with 40,000 nodes (each node is initally connected to its eight
+                    immediate spatial neighbours), and a rewiring probability of p, I find that the following number of
+                    timesteps are required to bring the network to saturation (at least 99% of nodes are of phenotype M1):
+
+              </p>
+                    </div>
+
+              </div>
+                    <div class="row-fluid">
+                <div class="span4 offset4">
+                <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>p</th>
+                        <th>time to saturation</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>0.01</td>
+                        <td>130.3</td>
+                      </tr>
+                      <tr>
+                        <td>0.011</td>
+                        <td>123.5</td>
+                      </tr>
+                    <tr>
+                        <td>0.013</td>
+                        <td>116.2</td>
+                      </tr>
+                    <tr>
+                        <td>0.017</td>
+                        <td>105.4</td>
+                      </tr>
+                    <tr>
+                        <td>0.023</td>
+                        <td>91.2</td>
+                      </tr>
+                    <tr>
+                        <td>0.031</td>
+                        <td>79.3</td>
+                      </tr>
+                    <tr>
+                        <td>0.04</td>
+                        <td>71.3</td>
+                      </tr>
+                    <tr>
+                        <td>0.1</td>
+                        <td>48.9</td>
+                      </tr>
+                      <tr>
+                        <td>0.11</td>
+                        <td>47.0</td>
+                      </tr>
+                    <tr>
+                        <td>0.13</td>
+                        <td>43.6</td>
+                      </tr>
+                    <tr>
+                        <td>0.17</td>
+                        <td>40.7</td>
+                      </tr>
+                    <tr>
+                        <td>0.23</td>
+                        <td>39.4</td>
+                      </tr>
+                    <tr>
+                        <td>0.31</td>
+                        <td>41.5</td>
+                      </tr>
+                    <tr>
+                        <td>0.4</td>
+                        <td>58.8</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                <p><small>* Results are averages of ten runs. Variance between runs is relatively small, thus the results are not expected to change significantly
+                with higher repeats. Results from p < 0.01 are virtually identical to those of p = 0.01.</small>
+                    </p>
+
+                </div>
+
+              </div>
+          <div class="row-fluid">
+                <div class="span12">
+
+
+                    These results capture the typical behavior of complex contagion as reported previously. After p
+                    reaches a certain threshold, saturating cascades are not observed anymore. No cascades were observed
+                    at p = 0.5. The reasons for this phenomenon
+                    are well understood (Centola et al. 2007, Centola and Macy 2007). In essence, complex contagion requires
+                    infectious phenotypes M1 to "cluster" in local neighborhoods (depending on T). Too much rewiring
+                    prevents the continuous generation of such infectious neighbourhood clusters that are required for
+                    complex contagion.
 
 
               <!--<p>Clone the project with <a href="http://git-scm.com">Git</a>
