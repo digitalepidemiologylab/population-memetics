@@ -132,9 +132,23 @@ public class Simulation {
     private String getOffspringMemotype(String memotype_exposing, String memotype_exposed) {
         String[] memoypes = InheritanceMatrix.getInstance().getInheritanceMemotypes(memotype_exposing, memotype_exposed);
         double[] probabilities = InheritanceMatrix.getInstance().getInheritanceProbabilities(memotype_exposing, memotype_exposed);
-        // pick a random memoType, but according to probabilities. TODO
         if (probabilities.length == 1) return memoypes[0];
-        return null;
+        else {
+            // resampling wheel algorithm for one sample
+            int N = probabilities.length;
+            int index = random.nextInt(N);
+            double max = Double.NEGATIVE_INFINITY;
+            for (int i = 0; i < N; i++) {
+                if (probabilities[i] > max) max = probabilities[i];
+            }
+            double beta = random.nextDouble();
+            beta += random.nextDouble() * 2.0 * max;
+            while (beta > probabilities[index]) {
+                beta -= probabilities[index];
+                index = (index + 1) % N;
+            }
+            return memoypes[index];
+        }
     }
 
     public boolean hasSuccessfullyFinished() {
