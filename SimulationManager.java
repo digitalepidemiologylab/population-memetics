@@ -9,7 +9,7 @@ public class SimulationManager {
 
     private void run() {
         int repeatsPerP = 10;
-        double[] ps = {0.42,0.44, 0.46, 0.48};
+        double[] ps = {0.001, 0.01};
         for (int i = 0; i < ps.length; i++) {
             double sumTimesteps = 0;
             SimulationSettings.getInstance().setRewiringProbability(ps[i]);
