@@ -4,10 +4,19 @@ package com.salathe.populationmemetics;
 import edu.uci.ics.jung.algorithms.cluster.WeakComponentClusterer;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseGraph;
+import edu.uci.ics.jung.visualization.renderers.Renderer;
+
 import java.util.Random;
 import java.util.Set;
 
 public class Simulation {
+
+    public final static int GRAPH_TYPE_WATTS_STROGATZ_1D = 1;
+    public final static int GRAPH_TYPE_WATTS_STROGATZ_2D = 2;
+
+    public final static int EDGE_REWIRING = 1;
+    public final static int EDGE_PERMUTATION = 2;
+
 
     Graph<Person, Connection> g;
     int currentTimestep = 0;
@@ -36,7 +45,7 @@ public class Simulation {
         this.fractionMemotype00 = new double[SimulationSettings.getInstance().getSlidingWindow()];
         this.fractionMemotype01 = new double[SimulationSettings.getInstance().getSlidingWindow()];
         this.fractionMemotype11 = new double[SimulationSettings.getInstance().getSlidingWindow()];
-        this.initSmallWorldLatticeGraph();
+        this.initGraph(Simulation.GRAPH_TYPE_WATTS_STROGATZ_2D, Simulation.EDGE_PERMUTATION);
         this.setRandomNeighboursTo11();
     }
 
@@ -155,10 +164,10 @@ public class Simulation {
         return this.hasSuccessfullyFinished;
     }
 
-    private void initSmallWorldRingGraph() {
+
+    private void initGraph(int graphType, int rewiringType) {
         Set components;
         int numberOfPeople = SimulationSettings.getInstance().getNumberOfPeople();
-        int k = SimulationSettings.getInstance().getK();
         this.people = new Person[numberOfPeople];
         do {
             this.g = new SparseGraph<Person, Connection>();
@@ -169,30 +178,11 @@ public class Simulation {
                 this.g.addVertex(person);
             }
             // connect in ring
-            for (int i = 0; i < numberOfPeople; i++) {
-                for (int ii = 0; ii < k; ii++) {
-                    int diff = ii/2 + 1; // integer division
-                    if (ii%2 == 1) diff *= -1;
-                    int newIndex = i + diff;
-                    if (newIndex < 0) newIndex += numberOfPeople;
-                    if (newIndex >= numberOfPeople) newIndex -= numberOfPeople;
-                    this.g.addEdge(new Connection(),this.people[i],this.people[newIndex]);
-                }
-            }
-            // random rewiring
-            for (Connection edge:this.g.getEdges()) {
-                if (this.random.nextDouble() < SimulationSettings.getInstance().getRewiringProbability()) {
-                    // rewire this edge
-                    Person source = this.g.getEndpoints(edge).getFirst();
-                    Person newDestination;
-                    do {
-                        newDestination = this.people[this.random.nextInt(numberOfPeople)];
-                    }
-                    while (this.g.isNeighbor(source,newDestination) || source.equals(newDestination));
-                    this.g.removeEdge(edge);
-                    this.g.addEdge(new Connection(),source,newDestination);
-                }
-            }
+            if (graphType == Simulation.GRAPH_TYPE_WATTS_STROGATZ_1D) this.init1DLattice();
+            if (graphType == Simulation.GRAPH_TYPE_WATTS_STROGATZ_2D) this.init2DLattice();
+            // random rewiring or permutation
+            if (rewiringType == Simulation.EDGE_REWIRING) this.rewireEdges();
+            if (rewiringType == Simulation.EDGE_PERMUTATION) this.permuteEdges();
             WeakComponentClusterer wcc = new WeakComponentClusterer();
             components = wcc.transform(this.g);
         }
@@ -200,52 +190,80 @@ public class Simulation {
         // make sure everything is connected
     }
 
-    private void initSmallWorldLatticeGraph() {
-        Set components;
+     private void init1DLattice() {
+        int numberOfPeople = SimulationSettings.getInstance().getNumberOfPeople();
+        int k = SimulationSettings.getInstance().getK();
+        for (int i = 0; i < numberOfPeople; i++) {
+            for (int ii = 0; ii < k; ii++) {
+                int diff = ii/2 + 1; // integer division
+                if (ii%2 == 1) diff *= -1;
+                int newIndex = i + diff;
+                if (newIndex < 0) newIndex += numberOfPeople;
+                if (newIndex >= numberOfPeople) newIndex -= numberOfPeople;
+                this.g.addEdge(new Connection(),this.people[i],this.people[newIndex]);
+            }
+        }
+    }
+
+    private void init2DLattice() {
         int numberOfPeople = SimulationSettings.getInstance().getNumberOfPeople();
         int dimension = (int)Math.sqrt(numberOfPeople);
-        this.people = new Person[numberOfPeople];
-        do {
-            this.g = new SparseGraph<Person, Connection>();
-            for (int i = 0; i < numberOfPeople; i++) {
-                // initialize all as having a positive vaccination opinion
-                Person person = new Person(Integer.toString(i),"00");
-                this.people[i] = person;
-                this.g.addVertex(person);
+        for (int i = 0; i < dimension; i++) {
+            for (int ii = 0; ii < dimension; ii++) {
+                this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i-1,ii-1,dimension)]);
+                this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i-1,ii,dimension)]);
+                this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i-1,ii+1,dimension)]);
+                this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i,ii-1,dimension)]);
+                this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i,ii+1,dimension)]);
+                this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i+1,ii-1,dimension)]);
+                this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i+1,ii,dimension)]);
+                this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i+1,ii+1,dimension)]);
             }
-            // connect in ring
-            for (int i = 0; i < dimension; i++) {
-                for (int ii = 0; ii < dimension; ii++) {
-                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i-1,ii-1,dimension)]);
-                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i-1,ii,dimension)]);
-                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i-1,ii+1,dimension)]);
-                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i,ii-1,dimension)]);
-                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i,ii+1,dimension)]);
-                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i+1,ii-1,dimension)]);
-                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i+1,ii,dimension)]);
-                    this.g.addEdge(new Connection(),this.people[i*dimension + ii],this.people[this.getIndex(i+1,ii+1,dimension)]);
-                }
-            }
-            // random rewiring
-            for (Connection edge:this.g.getEdges()) {
-                if (this.random.nextDouble() < SimulationSettings.getInstance().getRewiringProbability()) {
-                    // rewire this edge
-                    Person source = this.g.getEndpoints(edge).getFirst();
-                    Person newDestination;
-                    do {
-                        newDestination = this.people[this.random.nextInt(numberOfPeople)];
-                    }
-                    while (this.g.isNeighbor(source,newDestination) || source.equals(newDestination));
-                    this.g.removeEdge(edge);
-                    this.g.addEdge(new Connection(),source,newDestination);
-                }
-            }
-            WeakComponentClusterer wcc = new WeakComponentClusterer();
-            components = wcc.transform(this.g);
         }
-        while (components.size() > 1);
-        // make sure everything is connected
     }
+
+    private void rewireEdges() {
+        int numberOfPeople = SimulationSettings.getInstance().getNumberOfPeople();
+        for (Connection edge:this.g.getEdges()) {
+            if (this.random.nextDouble() < SimulationSettings.getInstance().getRewiringProbability()) {
+                // rewire this edge
+                Person source = this.g.getEndpoints(edge).getFirst();
+                Person newDestination;
+                do {
+                    newDestination = this.people[this.random.nextInt(numberOfPeople)];
+                }
+                while (this.g.isNeighbor(source,newDestination) || source.equals(newDestination));
+                this.g.removeEdge(edge);
+                this.g.addEdge(new Connection(),source,newDestination);
+            }
+        }
+    }
+
+    private void permuteEdges() {
+        int numberOfEdgesToPermute = (int)(SimulationSettings.getInstance().getRewiringProbability() * this.g.getEdgeCount());
+        while (numberOfEdgesToPermute > 0) {
+            // permute this edge
+            Object[] allEdges = this.g.getEdges().toArray();
+            Connection randomEdge, edge;
+            Person source1, source2, destination1, destination2;
+            do {
+                edge  = (Connection)(allEdges[this.random.nextInt(allEdges.length)]);
+                randomEdge  = (Connection)(allEdges[this.random.nextInt(allEdges.length)]);
+                source1 = this.g.getEndpoints(edge).getFirst();
+                destination1 = this.g.getEndpoints(edge).getSecond();
+                source2 = this.g.getEndpoints(randomEdge).getFirst();
+                destination2 = this.g.getEndpoints(randomEdge).getSecond();
+            }
+            while (edge.equals(randomEdge) || source1.equals(source2) || destination1.equals(destination2)|| source1.equals(destination2) || source2.equals(destination1));
+            this.g.removeEdge(edge);
+            this.g.removeEdge(randomEdge);
+            this.g.addEdge(new Connection(),source1,destination2);
+            this.g.addEdge(new Connection(),source2,destination1);
+            numberOfEdgesToPermute--;
+         }
+    }
+
+
 
     private int getIndex(int i, int ii, int dimension) {
         if (i < 0) i += dimension;

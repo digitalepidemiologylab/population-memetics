@@ -6,8 +6,10 @@ public class SimulationSettings {
 
 
     private int numberOfPeople = 200*200;
-    private int k = 8; // only relevant with smallgraph
+    private int k = 8; // only relevant with 1D graph
     private double rewiringProbability = 0.01;
+    private int graphType = Simulation.GRAPH_TYPE_WATTS_STROGATZ_2D;
+    private int rewiringType = Simulation.EDGE_REWIRING;
 
     // transmission rates
     private double transmissionRate00   = 0.;
@@ -24,6 +26,8 @@ public class SimulationSettings {
     private double viability00          = 1.0;
     private double viability01          = 0.;
     private double viability11          = 1.0;
+
+
 
     private int slidingWindow           = 10;
 
@@ -125,5 +129,25 @@ public class SimulationSettings {
 
     public int getSlidingWindow() {
         return this.slidingWindow;
+    }
+
+    public void setSlidingWindow(int slidingWindow) {
+        this.slidingWindow = slidingWindow;
+    }
+
+    public int getGraphType() {
+        return graphType;
+    }
+
+    public void setGraphType(int graphType) {
+        this.graphType = graphType;
+    }
+
+    public int getRewiringType() {
+        return rewiringType;
+    }
+
+    public void setRewiringType(int rewiringType) {
+        this.rewiringType = rewiringType;
     }
 }
