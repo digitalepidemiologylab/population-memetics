@@ -6,20 +6,20 @@ public class SimulationManager {
 
     public static void main(String[] args) {
         SimulationManager sm = new SimulationManager();
-        sm.run();
+        sm.runStandardModelComplexContagion();
     }
 
-    private void run() {
-        SimulationSettings.getInstance().setNumberOfPeople(100*100);
+    private void runStandardModelComplexContagion() {
+        SimulationSettings.getInstance().setNumberOfPeople(200*200);
         SimulationSettings.getInstance().setGraphType(Simulation.GRAPH_TYPE_WATTS_STROGATZ_2D);
         SimulationSettings.getInstance().setRewiringType(Simulation.EDGE_REWIRING);
-        int repeatsPerP = 1;
+        int repeatsPerP = 10;
         ArrayList<Double> ps_list = new ArrayList<Double>();
-        ps_list.add(0.01);
+        ps_list.add(0.0001);
         double nextValue;
         do {
             nextValue = ps_list.get(ps_list.size()-1);
-            nextValue += 0.01;
+            nextValue *= 1.1;
             ps_list.add(nextValue);
         }
         while (nextValue < 0.5);
