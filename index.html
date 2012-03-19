@@ -175,15 +175,15 @@
                     <tbody>
                       <tr>
                         <td><b>Exposed by 00:</b></td>
-                        <td>00*</td>
-                        <td>01*</td>
-                        <td>11*</td>
+                        <td>00</td>
+                        <td>01</td>
+                        <td>11</td>
                       </tr>
                       <tr>
                         <td><b>Exposed by 01:</b></td>
-                        <td>00*</td>
-                        <td>01*</td>
-                        <td>11*</td>
+                        <td>00</td>
+                        <td>01</td>
+                        <td>11</td>
                       </tr>
                       <tr>
                         <td><b>Exposed by 11:</b></td>
@@ -193,8 +193,7 @@
                       </tr>
                     </tbody>
                   </table>
-                <p><small>* in principle these values are irrelevant in the standard model as the transmission rate from
-                                        memotypes 00 an 01 (i.e. phenotype M0) is always 0.</small>
+                <p>
                     </p>
 
                 </div>
@@ -211,6 +210,24 @@
                   Viability of memotype 01 : 0   <br/>
                   Viability of memotype 11 : 1
                    <br/><br/>
+                 The viability of memotype 01 is zero because the transition from 00 to 11 requires the simultanous
+                    exposure of two neighbours with memotype 11. The implemention of the contagion step is such that
+                  at each timestep, each person is exposed to all <i>transmitting</i> memotypes at the same time. This
+                    process is simulated by applying the rules of horizontal inheritance one memotype at a time, in
+                    random order. The final resulting memotype is then adopted with a probability that equals the
+                    viability of that memotype. As an example, imagine a person with memotype 00 being exposed to memotypes of three
+                    neighbours which have phenotypes 00, 00 and 11. Applying the rules of horizontal tranmission in this
+                    order, we would get 00 x 00 <i class="icon-arrow-right"></i> 00 x 00 <i class="icon-arrow-right"></i>
+                    00 x 11 <i class="icon-arrow-right"></i> 01. Since memotype 01 has viability 0, the memotype of this
+                    person will thus remain 00. In another simulation run, we might have shuffeled the order of the
+                    exposing phenotypes to 00, 11, 00, in which case we would have had 00 x 00 <i class="icon-arrow-right"></i>
+                    00 x 11 <i class="icon-arrow-right"></i> 01 x 00 <i class="icon-arrow-right"></i>01, leading to the same
+                    outcome. Thus, a singular exposure by 11 to 00 does not cause the transition from 00 to 11. However,
+                    assume now that the three neighbours have memotypes 00, 11, 11. The result would then be 00 x 00
+                    <i class="icon-arrow-right"></i> 00 x 11 <i class="icon-arrow-right"></i> 01 x 11 <i class="icon-arrow-right"></i>
+                    11. Since the final memotype 11 has viability 1, the transition from 00 to 11 will occur (shuffling
+                    would not have changed the outcome).
+                 <br/><br/>
                   These four definitions (the memotype - phenotype map, the transmission rates, the rules of
                 horizontal inheritance, and the viabilities) are sufficient to define a population memetics version of
                     the standard model. As we will see later, they are sufficient to capture any contagion process.
