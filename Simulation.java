@@ -46,7 +46,15 @@ public class Simulation {
         this.fractionMemotype01 = new double[SimulationSettings.getInstance().getSlidingWindow()];
         this.fractionMemotype11 = new double[SimulationSettings.getInstance().getSlidingWindow()];
         this.initGraph(Simulation.GRAPH_TYPE_WATTS_STROGATZ_2D, Simulation.EDGE_PERMUTATION);
-        this.setRandomNeighboursTo11();
+//        this.setRandomNeighboursTo11();
+        this.setRandomMemotypes();
+    }
+
+    private void setRandomMemotypes() {
+        String[] memotypes = {"00","11"};
+        for (Person person:this.g.getVertices()) {
+            person.setMemotype(memotypes[this.random.nextInt(memotypes.length)]);
+        }
     }
 
     private void setRandomNeighboursTo11() {
@@ -63,7 +71,7 @@ public class Simulation {
             if (this.socialContagion) {
                 this.socialContagion();
                 this.gatherData();
-                this.checkWhetherToStop();
+//                this.checkWhetherToStop();
                 this.currentTimestep++;
             }
             else break;
@@ -86,7 +94,7 @@ public class Simulation {
         this.fractionMemotype00[this.currentTimestep % slidingWindow] = this.getFrequencyOfMemotype("00");
         this.fractionMemotype01[this.currentTimestep % slidingWindow] = this.getFrequencyOfMemotype("01");
         this.fractionMemotype11[this.currentTimestep % slidingWindow] = this.getFrequencyOfMemotype("11");
-//        System.out.println(this.currentTimestep + "\t" + this.getFrequencyOfMemotype("00") + "\t" + this.getFrequencyOfMemotype("01") + "\t" + this.getFrequencyOfMemotype("11"));
+        System.out.println(this.currentTimestep + "\t" + this.getFrequencyOfMemotype("00") + "\t" + this.getFrequencyOfMemotype("01") + "\t" + this.getFrequencyOfMemotype("11"));
     }
 
     private double getFrequencyOfMemotype(String memotype) {
