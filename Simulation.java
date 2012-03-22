@@ -71,7 +71,7 @@ public class Simulation {
             if (this.socialContagion) {
                 this.socialContagion();
                 this.gatherData();
-//                this.checkWhetherToStop();
+                this.checkWhetherToStop();
                 this.currentTimestep++;
             }
             else break;
@@ -81,12 +81,12 @@ public class Simulation {
     private void checkWhetherToStop() {
         // TODO make this generic
         // saturation, stop + success:
-        if (this.getFrequencyOfMemotype("11") >= 0.99) {
+        if (this.getFrequencyOfMemotype("11")>= 0.99  || this.getFrequencyOfMemotype("00")>= 0.99) {
             this.socialContagion = false;
             this.hasSuccessfullyFinished = true;
         }
         // no change, stop + no success:
-        if ( this.fractionMemotype11[0] ==  this.fractionMemotype11[SimulationSettings.getInstance().getSlidingWindow()-1]) this.socialContagion = false;
+//        if ( this.fractionMemotype11[0] ==  this.fractionMemotype11[SimulationSettings.getInstance().getSlidingWindow()-1]) this.socialContagion = false;
     }
 
     private void gatherData() {
@@ -94,10 +94,10 @@ public class Simulation {
         this.fractionMemotype00[this.currentTimestep % slidingWindow] = this.getFrequencyOfMemotype("00");
         this.fractionMemotype01[this.currentTimestep % slidingWindow] = this.getFrequencyOfMemotype("01");
         this.fractionMemotype11[this.currentTimestep % slidingWindow] = this.getFrequencyOfMemotype("11");
-        System.out.println(this.currentTimestep + "\t" + this.getFrequencyOfMemotype("00") + "\t" + this.getFrequencyOfMemotype("01") + "\t" + this.getFrequencyOfMemotype("11"));
+//        System.out.println(this.currentTimestep + "\t" + this.getFrequencyOfMemotype("00") + "\t" + this.getFrequencyOfMemotype("01") + "\t" + this.getFrequencyOfMemotype("11"));
     }
 
-    private double getFrequencyOfMemotype(String memotype) {
+    public double getFrequencyOfMemotype(String memotype) {
         double counter  = 0.;
         for (Person person:this.g.getVertices()) {
             if (person.getMemotype().equals(memotype)) counter++;
