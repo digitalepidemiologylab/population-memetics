@@ -19,9 +19,9 @@ public class SimulationManager {
         SimulationSettings.getInstance().setK(8);
         SimulationSettings.getInstance().setRewiringProbability(0.01);
         // the settings
-        SimulationSettings.getInstance().setTransmissionRate00(0.5);
+        SimulationSettings.getInstance().setTransmissionRate00(0.1);
         SimulationSettings.getInstance().setTransmissionRate01(0.0);
-        SimulationSettings.getInstance().setTransmissionRate11(0.5);
+        SimulationSettings.getInstance().setTransmissionRate11(0.1);
         SimulationSettings.getInstance().setViability00(1.0);
         SimulationSettings.getInstance().setViability00(0.0);
         SimulationSettings.getInstance().setViability00(1.0);
